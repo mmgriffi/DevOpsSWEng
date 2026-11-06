@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="{% static 'global.css' %}">
+<body>
+
+
+<!-- test is only referenced by the testing function -->
+{% include "menu.html" with me="TOBIAS" company="W3SCHOOLS" %}
+
+
+{% with role="User" %}
+<h1>Hello ({{ role }}), how are you?</h1>
+{% endwith %}
+<!-- firstname comes from views.py -->
+
+{% comment "this was the original message %}
+<h1> Welcome</h1>
+<!-- this comments out a block of code without having to put comments outside it...  -->
+{% endcomment %}
+
+{% for x in mymembers reversed %}
+  <h1>{{ x.id }}</h1>
+  <p>
+      <li
+            {% if forloop.first %}
+               style='background-color:lightblue;'
+            {% endif %}
+      >{{ x.firstname }}
+      {{ x.lastname }}</li>
+      {{ forloop.counter }}
+      <!-- forloop counter iterates https://www.w3schools.com/django/django_tags_for.php -->
+  </p>
+{% endfor %}
+
+<p>This is listing of the members table</p>
+
+</body>
+</html>

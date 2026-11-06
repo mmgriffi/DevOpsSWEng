@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'global.css' %}">
+</head>
+<body class="site-container">
+
+{% include "menu.html" with me="" company="ACME.inc" %}
+
+  <!-- Wrap your core content in a main tag -->
+  <main class="site-content">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+{% include 'footer.html' %}
+</body>
+</html>
