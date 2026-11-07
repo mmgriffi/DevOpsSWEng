@@ -35,3 +35,9 @@ jobs:
     - name: Run Tests
       run: |
         docker run --rm -w /app/my_tennis_club devops-app:test python manage.py test
+    #cleanup.
+    - name: Post-job Docker Cleanup
+      if: always()  # CRITICAL: Ensures this runs even if the build or tests fail
+      run: |
+        echo "Cleaning up Docker resources..."
+        docker system prune -af --volumes
