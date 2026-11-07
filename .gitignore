@@ -1,0 +1,22 @@
+# Python bytecode (compiled files)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django local configurations & database
+#db.sqlite3
+.env
+local_settings.py
+
+# Testing and Code Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# JetBrains / PyCharm IDE configuration (your ../.idea folder)
+.idea/
+
+# Operating System files
+.DS_Store
+Thumbs.db

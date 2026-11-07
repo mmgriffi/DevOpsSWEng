@@ -35,7 +35,7 @@ if DEBUG=='True':
     load_dotenv()   #when true it will load from .env files. Otherwise the variables are set in the container by Kubernetes secrets.
 
 SECRET_KEY=os.environ.get('SECRET_KEY')
-
+SECRET_KEY="django-insecure-bhr)ic%a6xvd#m#kjik6%1@o(_-asrt2g-u^bceumz0is!6j3m"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
