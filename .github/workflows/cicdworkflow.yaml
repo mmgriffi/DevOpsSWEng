@@ -32,14 +32,21 @@ jobs:
         #cache-to: type=gha,mode=max
         #Gemini suggested removing this.
     # 4. Run the Django test suite inside the built container
-    - name: Run Tests
+    - name: Run Basic pyhton tests
       run: |
         docker run --rm -w /app/my_tennis_club devops-app:test python manage.py test
+    - name: Run Basic pyhton tests
+      run: |
+        docker ps
         docker run --rm -w /app/my_tennis_club devops-app:test coverage run manage.py test
-        docker run --rm -w /app/my_tennis_club devops-app:test coverage report
     #cleanup.
     - name: Post-job Docker Cleanup
       if: always()  # CRITICAL: Ensures this runs even if the build or tests fail
       run: |
         echo "Cleaning up Docker resources..."
         docker system prune -af --volumes
+#    - name: Run Basic pyhton tests
+#      run: |
+#        docker run --rm -w /app/my_tennis_club devops-app:test python manage.py test
+#        docker run --rm -w /app/my_tennis_club devops-app:test coverage run manage.py test
+#        docker run --rm -w /app/my_tennis_club devops-app:test coverage report
