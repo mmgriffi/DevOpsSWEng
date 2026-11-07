@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    runs-on: self-hosted
+    runs-on: [self-hosted]
 
     steps:
     # 1. Checkout the code repository
