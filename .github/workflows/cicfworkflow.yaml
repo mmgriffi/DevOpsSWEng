@@ -1,0 +1,35 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: self-hosted
+
+    steps:
+    # 1. Checkout the code repository
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 2. Set up Docker Buildx (best practice for caching layers)
+    - name: Set up Docker Buildx
+      uses: actions/setup-buildx-action@v3
+
+    # 3. Build the container image locally for testing
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        load: true
+        tags: devops-app:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    # 4. Run the Django test suite inside the built container
+    - name: Run Tests
+      run: |
+        docker run --rm devops-app:test python manage.py test
