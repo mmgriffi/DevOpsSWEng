@@ -1,6 +1,7 @@
 
 services:
   django:
+    build: .
     image: clubsite:latest
     ports:
       - "8000:8000"
