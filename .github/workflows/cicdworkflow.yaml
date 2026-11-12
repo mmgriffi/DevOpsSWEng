@@ -45,7 +45,9 @@ jobs:
 
       - name: Run Playwright tests
         run: |
-         docker exec tennis-app \
+         docker exec \
+           -w /app/my_tennis_club \
+          tennis-app \
           pytest E2ETests -v
 
       - name: Cleanup
