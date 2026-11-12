@@ -1,0 +1,79 @@
+name: CI/CD Pipeline for Club Website
+
+on:
+  workflow_dispatch:
+  #push:
+  #  branches: [ main, dev ]
+  #  workflow_dispatch:
+  #pull_request:
+  #  branches: [ main ]
+
+jobs:
+  Build_and_Test:
+    runs-on: [self-hosted]
+
+    steps:
+    # 1. Checkout the code repository
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 2. Set up Docker Buildx (best practice for caching layers)
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    # 3. Build the container image locally for testing
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        load: true
+        tags: devops-app:test
+        #cache-from: type=gha
+        #cache-to: type=gha,mode=max
+        #Gemini suggested removing this.
+    # 4. Run the Django test suite inside the built container
+    - name: Run Basic pyhton tests
+      run: |
+        docker run --rm -w /app/my_tennis_club devops-app:test python manage.py test
+    - name: Run Tests and Generate Coverage
+      run: |
+       mkdir -p ./coverage_html
+       docker run --rm -v "$(pwd)/coverage_html:/app/my_tennis_club/htmlcov" -w /app/my_tennis_club devops-app:test sh -c "coverage run manage.py test && coverage html"
+    - name : Run E2E tests
+      run: |
+       docker run -d \
+         --name tennis-app \
+         -p 8000:8000 \
+         devops-app:test \
+         python manage.py runserver 0.0.0.0:8000
+
+    - name: Wait for application
+      run: |
+        timeout 30 bash -c 'until curl http://localhost:8000; do sleep 2; done'
+
+    - name: Run Playwright tests
+      run: |
+       docker run --rm \
+        --network host \
+        -w /app/my_tennis_club \
+        devops-app:test \
+        pytest E2ETests -v
+
+    - name: Upload Coverage HTML Artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: code-coverage-report
+        path: ./coverage_html/
+
+    #cleanup.
+    - name: Post-job Docker Cleanup
+      if: always()  # CRITICAL: Ensures this runs even if the build or tests fail
+      run: |
+        echo "Cleaning up Docker resources..."
+        docker system prune -af --volumes
+#    - name: Run Basic pyhton tests
+#      run: |
+#        docker run --rm -w /app/my_tennis_club devops-app:test python manage.py test
+#        docker run --rm -w /app/my_tennis_club devops-app:test coverage run manage.py test
+#        docker run --rm -w /app/my_tennis_club devops-app:test coverage report
