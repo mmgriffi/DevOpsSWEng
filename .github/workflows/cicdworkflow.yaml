@@ -50,7 +50,7 @@ jobs:
           tennis-app \
           pytest E2ETests -v
 
-      - name: Cleanup
-        if: always()
-        run: |
-         docker rm -f tennis-app
+      #- name: Cleanup
+      #  if: always()
+      #  run: |
+      #   docker rm -f tennis-app
