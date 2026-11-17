@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for Club Website
+name: CI Pipeline steps for Club Website
 
 on:
   workflow_dispatch:
