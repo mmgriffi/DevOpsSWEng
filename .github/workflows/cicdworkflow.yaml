@@ -48,7 +48,7 @@ jobs:
 # Execute the playwright tests on the runner against the docker container.
       - name : Run Playwright tests
         run: |
-          pytest E2ETests -v
+           pytest my_tennis_club/E2ETests -v
 #      - name: Run Playwright tests
 #        run: |
 #         docker exec \
@@ -60,5 +60,7 @@ jobs:
         if: always()
         run: |
          docker rm -f tennis-app
+         docker tag devops-app:test devops-app:deploy
+         docker rmi devops-app:test
 #        leave the image on the sytem for now.
 #        docker image rm devops-app:test
