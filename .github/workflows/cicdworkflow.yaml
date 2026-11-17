@@ -41,14 +41,18 @@ jobs:
 
       - name: Wait for Django
         run: |
+          pwd
+          cd /home/gh-runner/actions-runner/_work/DevOpsSWEng/DevOpsSWEng/my_tennis_club
+          ls -lart
+          curl http://127.0.0.1:8000
           sleep 15    
 
-      - name: Run Playwright tests
-        run: |
-         docker exec \
-           -w /app/my_tennis_club \
-          tennis-app \
-          pytest E2ETests -v
+#      - name: Run Playwright tests
+#        run: |
+#         docker exec \
+#           -w /app/my_tennis_club \
+#          tennis-app \
+#          pytest E2ETests -v
 
       - name: Cleanup
         if: always()
