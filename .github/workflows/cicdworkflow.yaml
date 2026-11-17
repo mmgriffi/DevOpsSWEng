@@ -83,17 +83,12 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=main
             # for this co-piot said that a commit with a tag would result in GHCR showing the tag
-            # this does not appear to be the case. GH repo itself is showing the tag however. 
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name : Remove Docker image
+      - name: Push Docker image to GHCR
+        run: |
+          docker tag devops-app:deploy ghcr.io/mmgriffi/devops:latest 
+          docker push ghcr.io/mmgriffi/devops:latest
+      - name : Remove Docker container
         if: always()
         run: |
           docker rm -f tennis-app
