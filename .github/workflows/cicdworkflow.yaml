@@ -11,7 +11,9 @@ on:
 jobs:
   Build_and_Test:
     runs-on: [ self-hosted ]
-
+    permissions:
+      contents : read
+      packages : write
     steps:
       - uses: actions/checkout@v4
 
@@ -41,16 +43,33 @@ jobs:
 
       - name: Wait for Django
         run: |
-          sleep 15    
-
-      - name: Run Playwright tests
+          pwd
+          ls -lart
+          sleep 15
+# Execute the playwright tests on the runner itself against the docker container.
+      - name : Run Playwright tests
         run: |
-         docker exec \
-           -w /app/my_tennis_club \
-          tennis-app \
-          pytest E2ETests -v
+           pytest my_tennis_club/E2ETests -v
+      - name: rename to deploy
+        run: |
+         #docker rm -f tennis-app
+         docker tag devops-app:test devops-app:deploy
+         docker rmi devops-app:test
+#        leave the image on the sytem for now.
+#        docker image rm devops-app:test
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Cleanup
+      - name: Push Docker image to GHCR
+        run: |
+          docker tag devops-app:deploy ghcr.io/mmgriffi/devops:latest 
+          docker push ghcr.io/mmgriffi/devops:latest
+      - name : Remove Docker container
         if: always()
         run: |
-         docker rm -f tennis-app
+          docker rm -f tennis-app || true
+#         docker rmi devops-app:test || true
