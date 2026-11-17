@@ -1,5 +1,5 @@
 name: CD Pipeline steps for Club Website
-
+# usage -deployment
 on:
   pull_request:
     branches: [ main ]

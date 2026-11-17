@@ -1,5 +1,5 @@
 name: CI Pipeline steps for Club Website
-
+#usage : build and test
 on:
   workflow_dispatch:
   #push:
