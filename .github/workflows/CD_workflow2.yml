@@ -1,0 +1,50 @@
+name: CD Pipeline steps for Club Website
+# usage -deployment
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      env:
+        description: 'Target Kubernetes environment (namespace)'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+
+jobs:
+  Deploy:
+    runs-on: [ self-hosted ]
+    env:
+      TARGET_ENV: ${{ inputs.env || 'dev' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set kubeconfig path
+        run: |
+          if [ -f "$HOME/config" ]; then
+            echo "KUBECONFIG=$HOME/config" >> $GITHUB_ENV
+          elif [ -f "$HOME/.kube/config" ]; then
+            echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
+          else
+            echo "Error: kubeconfig not found in $HOME/config or $HOME/.kube/config"
+            exit 1
+          fi
+
+      - name: Ensure namespace exists
+        run: |
+          kubectl create namespace ${{ env.TARGET_ENV }} --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Replace placeholders and apply Kubernetes manifests
+        run: |
+          sed -i "s/{{ENV}}/${{ env.TARGET_ENV }}/g" kubernetes/deployment.yaml kubernetes/services.yaml kubernetes/ingress.yaml
+          kubectl apply -f kubernetes/deployment.yaml -f kubernetes/services.yaml -f kubernetes/ingress.yaml
+
+      - name: Restart deployment to pull latest image
+        run: |
+          kubectl rollout restart deployment devops-app -n ${{ env.TARGET_ENV }}
+          kubectl rollout status deployment devops-app -n ${{ env.TARGET_ENV }} --timeout=120s
