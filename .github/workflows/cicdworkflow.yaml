@@ -49,12 +49,6 @@ jobs:
       - name : Run Playwright tests
         run: |
            pytest my_tennis_club/E2ETests -v
-#      - name: Run Playwright tests
-#        run: |
-#         docker exec \
-#           -w /app/my_tennis_club \
-#          tennis-app \
-#          pytest E2ETests -v
 
       - name: rename to deploy
         if: always()
