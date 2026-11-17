@@ -44,9 +44,11 @@ jobs:
           pwd
           cd /home/gh-runner/actions-runner/_work/DevOpsSWEng/DevOpsSWEng/my_tennis_club
           ls -lart
-          curl http://127.0.0.1:8000
-          sleep 15    
-
+          sleep 15
+# Execute the playwright tests on the runner against the docker container.
+      - name : Run Playwright tests
+        run: |
+          pytest E2ETests -v
 #      - name: Run Playwright tests
 #        run: |
 #         docker exec \
@@ -58,3 +60,5 @@ jobs:
         if: always()
         run: |
          docker rm -f tennis-app
+#        leave the image on the sytem for now.
+#        docker image rm devops-app:test
