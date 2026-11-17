@@ -40,7 +40,7 @@ SECRET_KEY="django-insecure-bhr)ic%a6xvd#m#kjik6%1@o(_-asrt2g-u^bceumz0is!6j3m"
 DEBUG = False
 
 ALLOWED_HOSTS = ['devops-dev.cluen.com',
-                 'devops.cluen.com',
+                 'devops-prod.cluen.com',
                  'localhost',
                  '127.0.0.1',]
 
