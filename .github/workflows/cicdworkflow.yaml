@@ -45,7 +45,7 @@ jobs:
           cd /home/gh-runner/actions-runner/_work/DevOpsSWEng/DevOpsSWEng/my_tennis_club
           ls -lart
           sleep 15
-# Execute the playwright tests on the runner against the docker container.
+# Execute the playwright tests on the runner itself against the docker container.
       - name : Run Playwright tests
         run: |
            pytest my_tennis_club/E2ETests -v
@@ -56,11 +56,44 @@ jobs:
 #          tennis-app \
 #          pytest E2ETests -v
 
-      - name: Cleanup
+      - name: rename to deploy
         if: always()
         run: |
-         docker rm -f tennis-app
+         #docker rm -f tennis-app
          docker tag devops-app:test devops-app:deploy
          docker rmi devops-app:test
 #        leave the image on the sytem for now.
 #        docker image rm devops-app:test
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=main
+            # for this co-piot said that a commit with a tag would result in GHCR showing the tag
+            # this does not appear to be the case. GH repo itself is showing the tag however. 
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name : Remove Docker image
+        if: always()
+        run: |
+          docker rm -f tennis-app
