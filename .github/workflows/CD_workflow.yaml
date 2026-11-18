@@ -48,3 +48,19 @@ jobs:
         run: |
           kubectl rollout restart deployment devops-app -n ${{ env.TARGET_ENV }}
           kubectl rollout status deployment devops-app -n ${{ env.TARGET_ENV }} --timeout=120s
+      - name: Wait for Application
+        run: |
+          pwd
+          ls -lart
+          sleep 30
+      - name : Run Playwright Smoke tests for dev
+        if: env.TARGET_ENV  == 'dev'
+        run: |
+           sed -i "s/127.0.0.1:8000/devops-dev.cluen.com/g" my_tennis_club/E2ETests/conftest.py
+           pytest my_tennis_club/E2ETests -v
+      - name : Run Playwright Smoke tests for prod
+        if: env.TARGET_ENV == 'prod'
+        run: |
+           sed -i "s/127.0.0.1:8000/devops-prod.cluen.com/g" my_tennis_club/E2ETests/conftest.py
+           pytest my_tennis_club/E2ETests -v
+      
