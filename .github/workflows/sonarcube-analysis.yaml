@@ -1,11 +1,11 @@
 # .github/workflows/sonar.yml - SonarQube analysis in GitHub Actions
 name: SonarQube Analysis
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
+  workflow_dispatch:
+#  push:
+#    branches: [main]
+#  pull_request:
+#    branches: [main]
 jobs:
   sonarqube:
     runs-on: [ self-hosted ]
