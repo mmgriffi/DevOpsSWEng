@@ -1,6 +1,6 @@
 name: CI_Pipeline_Steps
 permissions:
-   contents : read
+   contents : write
    packages : write
 on:
   workflow_dispatch:
