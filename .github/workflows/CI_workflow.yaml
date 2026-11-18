@@ -1,4 +1,4 @@
-name: CI Workflow for Club Website
+name: CI_Pipeline_Steps
 # for CI steps
 on:
   workflow_dispatch:
@@ -73,3 +73,12 @@ jobs:
         run: |
           docker rm -f tennis-app || true
 #         docker rmi devops-app:test || true
+      - name: Upload screenshots as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-screenshots
+          path: |
+            *.png
+            test-results/
+          retention-days: 30

@@ -1,8 +1,17 @@
-name: CD Pipeline steps for Club Website
+name: CD_Pipeline_steps
 # for CD steps
+permissions:
+    contents: write
 on:
   pull_request:
     branches: [ main ]
+
+  # Automatically runs when the CI workflow finishes
+  workflow_run:
+    workflows: ["CI_Pipeline_Steps"] # Must match the exact 'name:' inside CI_workflow.yaml
+    types:
+      - completed
+
   workflow_dispatch:
     inputs:
       env:
@@ -46,6 +55,7 @@ jobs:
 
       - name: Restart deployment to pull latest image
         run: |
+          echo "Deploying to namespace: $TARGET_ENV"
           kubectl rollout restart deployment devops-app -n ${{ env.TARGET_ENV }}
           kubectl rollout status deployment devops-app -n ${{ env.TARGET_ENV }} --timeout=120s
       - name: Wait for Application
@@ -55,7 +65,6 @@ jobs:
           sleep 30
 
 #if tests can be used to apply the relevant dev/prod or local url to conftest.py
-#
 #      - name : Run Playwright Smoke tests for dev
 #        if: env.TARGET_ENV  == 'dev'
 #        run: |
@@ -66,6 +75,16 @@ jobs:
 #        run: |
 #           sed -i "s/127.0.0.1:8000/devops-prod.cluen.com/g" my_tennis_club/E2ETests/conftest.py
 #           pytest my_tennis_club/E2ETests -v
-      
+
+# This uses the TARGET_ENV setting and updated conftest.py which sets dev, prod or 127.0.0.1 urls accordingly.
       - name : Run Playwright Smoke tests
         run: pytest my_tennis_club/E2ETests -v
+      - name: Upload screenshots as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-screenshots
+          path: |
+            *.png
+            test-results/
+          retention-days: 30
