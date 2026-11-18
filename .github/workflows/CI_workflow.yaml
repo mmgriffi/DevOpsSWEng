@@ -1,19 +1,12 @@
 name: CI_Pipeline_Steps
-# for CI steps
+permissions:
+   contents : write
+   packages : write
 on:
   workflow_dispatch:
-  #push:
-  #  branches: [ main, dev ]
-  #  workflow_dispatch:
-  #pull_request:
-  #  branches: [ main ]
-
 jobs:
   Build_and_Test:
     runs-on: [ self-hosted ]
-    permissions:
-      contents : read
-      packages : write
     steps:
       - uses: actions/checkout@v4
 
@@ -82,3 +75,12 @@ jobs:
             *.png
             test-results/
           retention-days: 30
+  deploy-to-dev:
+    # Replace 'build-and-test' with the actual job ID from your CI_workflow.yaml
+    needs: Build_and_Test
+    uses: ./.github/workflows/CD_workflow.yaml
+    with:
+      env: 'dev'
+    # Passes all your repository secrets (like KUBECONFIG or GHCR tokens) to the CD workflow
+    secrets: inherit
+

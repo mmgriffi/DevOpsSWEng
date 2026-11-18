@@ -3,14 +3,22 @@ name: CD_Pipeline_steps
 permissions:
     contents: write
 on:
-  pull_request:
-    branches: [ main ]
+#  pull_request:
+#    branches: [ main ]
 
   # Automatically runs when the CI workflow finishes
-  workflow_run:
-    workflows: ["CI_Pipeline_Steps"] # Must match the exact 'name:' inside CI_workflow.yaml
-    types:
-      - completed
+#  workflow_run:
+#    workflows: ["CI_Pipeline_Steps"] # Must match the exact 'name:' inside CI_workflow.yaml
+#    types:
+#      - completed
+  # 1. Allows CI_workflow.yaml to call this workflow automatically
+  workflow_call:
+    inputs:
+      env:
+        description: 'Target Kubernetes environment (namespace)'
+        required: false
+        type: string
+        default: 'dev'
 
   workflow_dispatch:
     inputs:
@@ -83,7 +91,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-screenshots
+          name: smoke-test-screenshots-${{ env.TARGET_ENV }}
           path: |
             *.png
             test-results/
