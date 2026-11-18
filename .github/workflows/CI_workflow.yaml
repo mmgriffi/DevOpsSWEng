@@ -82,3 +82,12 @@ jobs:
             *.png
             test-results/
           retention-days: 30
+  deploy-to-dev:
+    # Replace 'build-and-test' with the actual job ID from your CI_workflow.yaml
+    needs: Build_and_Test
+    uses: ./.github/workflows/CD_workflow.yaml
+    with:
+      env: 'dev'
+    # Passes all your repository secrets (like KUBECONFIG or GHCR tokens) to the CD workflow
+    secrets: inherit
+
