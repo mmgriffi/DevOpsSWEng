@@ -1,19 +1,12 @@
 name: CI_Pipeline_Steps
-# for CI steps
+permissions:
+   contents : read
+   packages : write
 on:
   workflow_dispatch:
-  #push:
-  #  branches: [ main, dev ]
-  #  workflow_dispatch:
-  #pull_request:
-  #  branches: [ main ]
-
 jobs:
   Build_and_Test:
     runs-on: [ self-hosted ]
-    permissions:
-      contents : read
-      packages : write
     steps:
       - uses: actions/checkout@v4
 
