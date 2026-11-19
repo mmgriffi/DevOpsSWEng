@@ -1,4 +1,10 @@
 FROM python:3.12-slim
+
+ARG APP_VERSION=dev
+ARG BUILD_DATE=local
+ENV APP_VERSION=$APP_VERSION
+ENV BUILD_DATE=$BUILD_DATE
+
 # Set working directory
 WORKDIR /app
 # Install system dependencies (if needed)
@@ -9,14 +15,14 @@ RUN apt-get update && apt-get install -y \
     nano \
     && rm -rf /var/lib/apt/lists/*
 # Copy dependency list and install
-RUN apt-get update && apt-get install -y \
-    fonts-dejavu-core \
-    fonts-liberation \
-    fontconfig \
-    && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y \
+#    fonts-dejavu-core \
+#    fonts-liberation \
+#    fontconfig \
+#    && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN playwright install --with-deps chromium
+#RUN playwright install --with-deps chromium
 #RUN playwright install chromium
 RUN ls -lart
 RUN SECRET_KEY="django-insecure-bhr)ic%a6xvd#m#kjik6%1@o(_-asrt2g-u^bceumz0is!6j3m"

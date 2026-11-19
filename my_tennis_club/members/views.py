@@ -22,7 +22,7 @@ def details(request, id):
 
 def main(request):
   template = loader.get_template('main.html')
-  return HttpResponse(template.render())
+  return HttpResponse(template.render({},request))
 
 def testing(request):
   mymembers = Member.objects.all().values()
