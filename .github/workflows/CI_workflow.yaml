@@ -11,9 +11,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+        run: |
+         ls -lart
+#         sed -i "s/{{VERSION_PLACEHOLDER}}/${{ github.ref_name }}/g" my_tennis_club/members/templates/footer.html
       - name: Build Docker image
-        run: docker build -t devops-app:test .
+#        run: docker build -t devops-app:test .
+        run: |
+          APP_VERSION=$(git describe --tags --abbrev=0 || echo "dev")
+          echo "Building version: $APP_VERSION"
+          docker build --build-arg APP_VERSION=$APP_VERSION -t devops-app:test .
 
       - name: Run Django unit tests with coverage
         run: |
