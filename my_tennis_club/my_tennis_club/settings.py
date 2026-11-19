@@ -12,6 +12,7 @@ import sys,os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 APP_VERSION = os.environ.get("APP_VERSION", "local-dev")
+BUILD_DATE = os.environ.get("BUILD_DATE", "local")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
