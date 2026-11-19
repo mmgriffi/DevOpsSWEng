@@ -14,9 +14,7 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-        run: |
-         ls -lart
-#         sed -i "s/{{VERSION_PLACEHOLDER}}/${{ github.ref_name }}/g" my_tennis_club/members/templates/footer.html
+
       - name: Build Docker image
 #        run: docker build -t devops-app:test .
         run: |
