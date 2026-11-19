@@ -1,6 +1,8 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from .models import Member
+
+
 
 
 class MemberViewsTestCase(TestCase):
@@ -48,3 +50,11 @@ class MemberViewsTestCase(TestCase):
         # you would assert self.assertEqual(response.status_code, 404) instead.
         with self.assertRaises(Member.DoesNotExist):
             self.client.get(url)
+
+class FooterVersionTests(TestCase):
+    @override_settings(APP_VERSION="v9.9", BUILD_DATE="19-Nov-2026")
+    def test_homepage_renders_version_and_build_date(self):
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Version: v9.9")
+        self.assertContains(response, "Build: 19-Nov-2026")

@@ -1,4 +1,10 @@
 FROM python:3.12-slim
+
+ARG APP_VERSION=dev
+ARG BUILD_DATE=local
+ENV APP_VERSION=$APP_VERSION
+ENV BUILD_DATE=$BUILD_DATE
+
 # Set working directory
 WORKDIR /app
 # Install system dependencies (if needed)

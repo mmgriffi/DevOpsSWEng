@@ -26,4 +26,13 @@ GitHub integrations allow communictation with Slack. In this case I selected thi
 Once build and tests complete the application is pushed to the GitHub Container Registry (GHCR). 
 
 
+**New versions**
+when you are ready to push a new version and include a tag do the following :
+```` 
+     git tag v1.1 
+     git push --tags
+     
+     _verify_
+     git describe --tags
+````
 

@@ -11,9 +11,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Build Docker image
-        run: docker build -t devops-app:test .
+#        run: docker build -t devops-app:test .
+        run: |
+          APP_VERSION=$(git describe --tags --abbrev=0 || echo "dev")
+          BUILD_DATE=$(date +"%d-%b-%Y")
+          echo "Building version: $APP_VERSION"
+          docker build --build-arg APP_VERSION=$APP_VERSION \
+          --build-arg BUILD_DATE=$BUILD_DATE \
+          -t devops-app:test .
 
       - name: Run Django unit tests with coverage
         run: |
