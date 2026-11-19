@@ -26,8 +26,8 @@ GitHub integrations allow communictation with Slack. In this case I selected thi
 Once build and tests complete the application is pushed to the GitHub Container Registry (GHCR). 
 
 
-**New versions**
-when you are ready to push a new version and include a tag do the following :
+**New version Deployment**
+ - When you are ready to push a new version and include a tag do the following :
 ```` 
      git tag v1.1 
      git push --tags
@@ -35,4 +35,12 @@ when you are ready to push a new version and include a tag do the following :
      _verify_
      git describe --tags
 ````
+- Commit and push changes to the branch.
+- Run GitHub Actions "CI_PipeLine" CI_workflow.yaml
 
+**Application Revision History**
+
+|Version|Notes|
+|----|----|
+|v1.0|1st version, website and basic deployment workflows working|
+| v1.1| Added version + build info to footer page.  added SonarCube Scans|
