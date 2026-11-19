@@ -36,7 +36,6 @@ jobs:
     runs-on: [ self-hosted ]
     env:
       TARGET_ENV: ${{ inputs.env || 'dev' }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -71,22 +70,18 @@ jobs:
           pwd
           ls -lart
           sleep 30
+  SmokeTest:
+    needs: Deploy
+    runs-on: [ self-hosted ]
+    env:
+      TARGET_ENV: ${{ inputs.env || 'dev' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-#if tests can be used to apply the relevant dev/prod or local url to conftest.py
-#      - name : Run Playwright Smoke tests for dev
-#        if: env.TARGET_ENV  == 'dev'
-#        run: |
-#           sed -i "s/127.0.0.1:8000/devops-dev.cluen.com/g" my_tennis_club/E2ETests/conftest.py
-#           pytest my_tennis_club/E2ETests -v
-#      - name : Run Playwright Smoke tests for prod
-#        if: env.TARGET_ENV == 'prod'
-#        run: |
-#           sed -i "s/127.0.0.1:8000/devops-prod.cluen.com/g" my_tennis_club/E2ETests/conftest.py
-#           pytest my_tennis_club/E2ETests -v
-
-# This uses the TARGET_ENV setting and updated conftest.py which sets dev, prod or 127.0.0.1 urls accordingly.
-      - name : Run Playwright Smoke tests
+      - name: Run Playwright Smoke tests
         run: pytest my_tennis_club/E2ETests -v
+
       - name: Upload screenshots as artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -96,3 +91,4 @@ jobs:
             *.png
             test-results/
           retention-days: 30
+
