@@ -1,17 +1,16 @@
 name: CI_Pipeline_Steps
 permissions:
-   contents: write
-   packages: write
+  contents: write
+  packages: write
 on:
   workflow_dispatch:
+
 jobs:
   Build_and_Test:
     runs-on: [ self-hosted ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Full history needed for SonarQube blame/new-code data
 
       - name: Build Docker image
         run: docker build -t devops-app:test .
@@ -23,9 +22,14 @@ jobs:
             devops-app:test \
             sh -c "pip install coverage && coverage run manage.py test && coverage xml"
 
-          # Copy coverage.xml to the runner workspace for SonarQube, then clean up container
           docker cp tennis-unit-tests:/app/my_tennis_club/coverage.xml ./coverage.xml
           docker rm tennis-unit-tests
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
 
       - name: Start Django container
         run: |
@@ -35,13 +39,38 @@ jobs:
             devops-app:test
 
       - name: Wait for Django
-        run: |
-          sleep 15
+        run: sleep 15
 
-      # Execute the playwright tests on the runner itself against the docker container
       - name: Run Playwright tests
-        run: |
-          pytest my_tennis_club/E2ETests -v
+        run: pytest my_tennis_club/E2ETests -v
+
+      - name: Remove Docker container
+        if: always()
+        run: docker rm -f tennis-app || true
+
+      - name: Upload screenshots as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-screenshots
+          path: |
+            *.png
+            test-results/
+          retention-days: 30
+
+  QualityScan:
+    needs: Build_and_Test
+    runs-on: [ self-hosted ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@v8
@@ -53,13 +82,16 @@ jobs:
             -Dsonar.python.coverage.reportPaths=coverage.xml
 
       - name: Quality Gate Check
-        # Set to 'true' initially so existing alerts don't block builds; change to 'false' once ready to enforce
         continue-on-error: true
         uses: sonarsource/sonarqube-quality-gate-action@v1
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+  Push_To_GHCR:
+    needs: QualityScan
+    runs-on: [ self-hosted ]
+    steps:
       - name: Rename to deploy
         run: |
           docker tag devops-app:test devops-app:deploy
@@ -78,23 +110,8 @@ jobs:
           docker push ghcr.io/mmgriffi/devops:latest
           docker rmi devops-app:deploy || true
 
-      - name: Remove Docker container
-        if: always()
-        run: |
-          docker rm -f tennis-app || true
-
-      - name: Upload screenshots as artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-screenshots
-          path: |
-            *.png
-            test-results/
-          retention-days: 30
-
   deploy-to-dev:
-    needs: Build_and_Test
+    needs: Push_To_GHCR
     uses: ./.github/workflows/CD_workflow.yaml
     with:
       env: 'dev'
