@@ -28,12 +28,9 @@ jobs:
       - name: Run Django unit tests with coverage
         run: |
           docker run --name tennis-unit-tests \
-#fix issue with coverage report - this was being run in /app/my_tennis_club, but later SonarQube tries to read the report from /app
-#resuling in incorrect coverage issues.
             -w /app \
             devops-app:test \
             sh -c "pip install coverage && coverage run --rcfile=my_tennis_club/.coveragerc --source=my_tennis_club my_tennis_club/manage.py test my_tennis_club -v 2 && coverage xml"
-
           docker cp tennis-unit-tests:/app/coverage.xml ./coverage.xml
           docker rm tennis-unit-tests
 
