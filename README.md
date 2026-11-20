@@ -5,6 +5,12 @@ This application is a Django website with a single database table and functions 
 I've used Django/Python framework as it has extensive libraries and testing facilities.
 (_and, I'm trying to learn Python_). I've used PyCharm IDE which allows me run/basic test applications in a virtual python enviroment locally before transfer to a docker desktop on the laptop, or to a container environment. 
 
+| Homepage                      | Note                                                      |
+|-------------------------------|-----------------------------------------------------------|
+| ![image](images/homepage.jpg) | version is taken from git tag</br> date is the build date |
+| ![image](images/members.jpg)  |the app has drilldown to members list and individual member|
+
+
 ## Build/Deployment Environment 
 I'm using a Promox homelab server that I've used for development projects. 
 The relevant items for this assigment are : 
@@ -17,7 +23,7 @@ The relevant items for this assigment are :
 |Monitoring||                                                                                                                                                                        |
 
 **Kubernetes Environment**
-To create a near-production scenario, I've created 2 namespaces on the Kubernetes cluster - dev + prod. 
+To create a near-production scenario, I've setup 2 namespaces on the Kubernetes cluster - dev + prod. 
 The thinking is that I would regularly (or continually) build the package, push to a registry and install the app on "dev". 
 Once approved (this could be a combination of user tests / CAB approval etc) the package can be pulled from the registry and installed on "prod"
 
@@ -39,6 +45,25 @@ GitHub Actions workflows act as the CI + CD platforms to automate the build/test
 |CI_workflow.yaml|![image](images/CI_CD_workflow.jpg)| -Build docker image and runs unit tests<br/>-run SonarQube scan<br/>-push to GHCR<br/>- **Next** trigger CD_workflow.xml to install on "dev" (see below) |
 |CD_workflow.yaml|![image](images/CD_workflow.jpg)| -sets chosen "prod" or "dev" in kubernetes yaml files </br> -Deploy/redeploy from GHCR </br> -run Playwright smoke test from runner                      |
 
+**Kubernetes Configurations**
+Before these are applied, I use sed to swop a placeholder value of "ENV" in the repo file  with the actual value (dev or prod is passed from the actions input) .
+When these yaml files are applied the resources are created in the approiate namespace with a different url for the dev or prod website. 
+
+In my DNS server/environment I mapped each hostname to the IP address of the cluster as required by Kubernetes networking.
+
+| url                                                                      | DNS                             |
+|--------------------------------------------------------------------------|---------------------------------|
+| http://devops-dev.cluen.com </br> and </br> http://devops-prod.cluen.com | ![image](images/DNSRecords.jpg) |
+
+|Name|Image| Notes                                                                                                                |
+|----|----|----------------------------------------------------------------------------------------------------------------------|
+|Deployment.yaml|![image](images/deploymentYAML.jpg)| name space is passed from GH inputs, and using GHCR registry                                                         |
+|service.yaml|[![image](images/servicesYAML.jpg)| namespace is passed from GH inputs </br>using a cluster IP service mapping port 80 to the internal running port 8080 |
+|Ingress.yaml|[![image](images/ingressYaml.jpg)|maps the service to host (devops-prod , or devops-dev)|
+
+
+## Notifications ##
+
 **Clickup**
 ClickUp is linked with my repos ![image](images/ClickUpApps-GitHub.jpg)
 From that, ClickUp can create Issues/Pull Requests/Create Branches on the repo.  From GitHub you can close the issue and the status is reflected 
@@ -51,17 +76,18 @@ CU-1amhxucrzgq[<state name>]  (to do, in progress, complete )  are the only stat
 
 _Overall, found the integration between ClickUp and GitHub loose, you needed to be disciplined in how Issues/PRs are managed in GH or Click won't update.. but it works_
 
-**Slack**
+**Slack & email **
 On my account I setup GitHub integrations allow communictation with Slack. (set for this repo only.), and I created a communication channel "devops_sw_assignment".
 I get notifications on issues, commits , pull requests.
-
- ![image](images/Slack_PullRequest_message.jpg)
-
-**Email**
 I have configured email notifications on my GitHub account, so I'm getting emails on Workflow failures. 
-![image](images/email_workflow_failure.jpg)
 
-**Testing tools**
+| Slack                                          |Email|
+|------------------------------------------------| ----|
+| ![image](images/Slack_PullRequest_message.jpg) |![image](images/email_workflow_failure.jpg)|
+
+### Testing ###
+
+**Testing**
  - **Unit Test:** I'm using **pytest* and **coverage** to execute unit/internal tests defined in DevOpsSWEng\my_tennis_club\members\tests.py. These validate the python functions that add a user, and the views to display member listings.
  - **Build/Integration test:** For local validation of the build, I start the container on the runner system and use pytest-playwright to execute tests (http://127.0.0.1:8000) . These verify the container has started correctly and that functions like displaying a list of users work.
  - **Smoke Tests:** Once deployed on the Kubernetes cluster I execute smoke tests using the actual URL (http://devops-dev.cluen.com or http://devops-prod.cluen.com). This is the final validation that the Kubernetes pods/services/ingress is working.
