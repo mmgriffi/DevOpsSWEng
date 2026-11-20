@@ -1,29 +1,45 @@
 # DevOps Software Engineering Assignment
 
 ## Introduction
-This application is a basic Django website with a basic table and functions to view a members table. I've used Django/Python framework as it has extensive libraries and testing facilities.
-(_and, I'm trying to learn Python_). I've used PyCharm as the IDE which allows me run/basic test applications in a virtual python enviroment locally before transfer to a docker desktop on the laptop, or to a container environment. 
+This application is a Django website with a single database table and functions to display a members list.
+I've used Django/Python framework as it has extensive libraries and testing facilities.
+(_and, I'm trying to learn Python_). I've used PyCharm IDE which allows me run/basic test applications in a virtual python enviroment locally before transfer to a docker desktop on the laptop, or to a container environment. 
 
 ## Build/Deployment Environment 
-I have a homelab server that I've used for development and testing in the past. 
-This is configred as a Promox Virtual host and runs the virtual machines used in my environment. 
+I'm using a Promox homelab server that I've used for development projects. 
 The relevant items for this assigment are : 
 
-| Item                      |Description| Notes                                                                                                                                                                   |
-|---------------------------|----|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Container Orchestration   |Kubernetes(rke2)| I have confgured a 2 node rke2 cluster. This is managed from command line and using the "Headlamp" GUI utility.                                                         |
+| Item                      |Description| Notes                                                                                                                                                                  |
+|---------------------------|----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Container Orchestration   |Kubernetes(rke2)| I have confgured a 2 node rke2 cluster. This is managed from command line and an open source GUI "Headlamp".                                                |
 | GitHub Runner             |Ubuntu 22.04 node VM| This is configured as a "self hosted" github runner with docker, python testing tools (playwright, pytest, chromium) and keys required to connect to github, sonarqube. | 
-| Code Analysis (SonarQube) |LXC Ubuntu 22.04 container| This LXC container has docker and the SonarCube images (website/db) installed , running on http://192.168.1.92 locally.                                                 | 
-|Monitoring||                                                                                                                                                                         |
+| Code Analysis (SonarQube) |LXC Ubuntu 22.04 container| This LXC container has docker and the SonarCube images (website/db) installed , running on http://192.168.1.92 locally.                                                | 
+|Monitoring||                                                                                                                                                                        |
 
-## CI/CD Tool Integration ###
+**Kubernetes Environment**
+To create a near-production scenario, I've created 2 namespaces on the Kubernetes cluster - dev + prod. 
+The thinking is that I would regularly (or continually) build the package, push to a registry and install the app on "dev". 
+Once approved (this could be a combination of user tests / CAB approval etc) the package can be pulled from the registry and installed on "prod"
+
+**Container Registry**
+I've used GitHub Container Registry (GHCR) to store the package. 
+
+## CI/CD Tools & Integration ###
 
 **GitHub Actions**
-I've used GitHub Actions as I had expierence of this from previous work. 
+GitHub Actions workflows act as the CI + CD platforms to automate the build/test and deployment. 
+- Summary: 
+ - There are 2 workflows (CI_workflow.yaml and CD_workflow.yaml).
+ - When CI_workflow.yaml runs to completion, it triggers CD_workflow.yaml to complete the deployment step to the "dev" namespace automatically. 
+ - CD_Workflow.yaml is used also for "prod", it can be triggered seperately(workflow dispatch) to install on prod.
 
+
+|Workflow| Image| Notes                                                                                                                                                    |
+|----|----|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+|CI_workflow.yaml|![image](images/CI_CD_workflow.jpg)| -Build docker image and runs unit tests<br/>-run SonarQube scan<br/>-push to GHCR<br/>- **Next** trigger CD_workflow.xml to install on "dev" (see below) |
+|CD_workflow.yaml|![image](images/CD_workflow.jpg)| -sets chosen "prod" or "dev" in kubernetes yaml files </br> -Deploy/redeploy from GHCR </br> -run Playwright smoke test from runner                      |
 
 **Clickup**
-
 ClickUp is linked with my repos ![image](images/ClickUpApps-GitHub.jpg)
 From that, ClickUp can create Issues/Pull Requests/Create Branches on the repo.  From GitHub you can close the issue and the status is reflected 
 on the ClickUp task if you use some keywords in the comment such as Fixes CU-1amhxucrzgq
@@ -31,18 +47,39 @@ on the ClickUp task if you use some keywords in the comment such as Fixes CU-1am
 If you're commiting or doing a pull merge this keywork will move the task status.
 CU-1amhxucrzgq[<state name>]  (to do, in progress, complete )  are the only states I've used. 
 
-**Slack**
+![image](images/ClickUp_Task_Update_by_GH_PR.jpg)
 
-GitHub integrations allow communictation with Slack. In this case I selected this repo only.
+_Overall, found the integration between ClickUp and GitHub loose, you needed to be disciplined in how Issues/PRs are managed in GH or Click won't update.. but it works_
+
+**Slack**
+On my account I setup GitHub integrations allow communictation with Slack. (set for this repo only.), and I created a communication channel "devops_sw_assignment".
+I get notifications on issues, commits , pull requests.
+
+ ![image](images/Slack_PullRequest_message.jpg)
+
+**Email**
+I have configured email notifications on my GitHub account, so I'm getting emails on Workflow failures. 
+![image](images/email_workflow_failure.jpg)
 
 **Testing tools**
- - **Unit Test:** I'm using **pytest* to execute unit/internal tests defined in DevOpsSWEng\my_tennis_club\members\tests.py. These validate the python functions that add a user, and the views to display member listings.
- - **Build/Integration test:** For validation of the build, I start the container on the runner system and use pytest-playwright to execute selenium tests (http://127.0.0.1:8000) . These verify the container has started correctly and functions like displaying a list of users work.
+ - **Unit Test:** I'm using **pytest* and **coverage** to execute unit/internal tests defined in DevOpsSWEng\my_tennis_club\members\tests.py. These validate the python functions that add a user, and the views to display member listings.
+ - **Build/Integration test:** For local validation of the build, I start the container on the runner system and use pytest-playwright to execute tests (http://127.0.0.1:8000) . These verify the container has started correctly and that functions like displaying a list of users work.
  - **Smoke Tests:** Once deployed on the Kubernetes cluster I execute smoke tests using the actual URL (http://devops-dev.cluen.com or http://devops-prod.cluen.com). This is the final validation that the Kubernetes pods/services/ingress is working.
- - 
-**Application Repository**
-Once build and tests complete the application is pushed to the GitHub Container Registry (GHCR). 
 
+**Code Quality/Coverage**
+I have setup SonarQube on a VM with a project connected to this repo, plus GitHub secrets (see SONAR_HOST URL and SONAR_TOKEN secrets ).
+The GH action setp for checking the quality gate was set to allow it continue on error (while debugging issues with how sonar qube was reading python test output)
+
+|Image | Notes                                                                                                                                                                                            |
+|----|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|![image](images/SonarQube1stScan.jpg)| This first scan flagged issues with the Django code I got from the </br> tutorial. This is the baseline. I configured the scans to look at new code only, but these can be </br> corrected later |
+|![image](images/SonarQube2ndScan.jpg)| The 2nd scan (for new code) flagged multiple code coverage issues. </br> On research found this was because the unit test coverage report was being missed and the python test file itself was being scanned|
+|![image](images/SonarQube3ndScan.jpg)| After correcting the CI_workflow.yaml steps for running coverage and where SonarQube scan checked, coverage is now passing|
+
+
+**Monitoring***
+
+<todo>
 
 **New version Deployment**
  - When you are ready to push a new version and include a tag do the following :
