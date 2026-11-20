@@ -28,11 +28,10 @@ jobs:
       - name: Run Django unit tests with coverage
         run: |
           docker run --name tennis-unit-tests \
-            -w /app/my_tennis_club \
+            -w /app \
             devops-app:test \
-            sh -c "pip install coverage && coverage run --source=. manage.py test -v 2 && coverage xml"
-
-          docker cp tennis-unit-tests:/app/my_tennis_club/coverage.xml ./coverage.xml
+            sh -c "pip install coverage && coverage run --rcfile=my_tennis_club/.coveragerc --source=my_tennis_club my_tennis_club/manage.py test my_tennis_club -v 2 && coverage xml"
+          docker cp tennis-unit-tests:/app/coverage.xml ./coverage.xml
           docker rm tennis-unit-tests
 
       - name: Upload coverage report
@@ -92,7 +91,7 @@ jobs:
             -Dsonar.sources=my_tennis_club
             -Dsonar.tests=my_tennis_club
             -Dsonar.test.inclusions=**/tests.py,**/test_*.py,**/E2ETests/**
-            -Dsonar.exclusions=**/migrations/**,**/settings.py,**/manage.py
+            -Dsonar.exclusions=**/migrations/**,**/settings.py,**/manage.py,**/asgi.py,**/wsgi.py
             -Dsonar.python.coverage.reportPaths=coverage.xml
 
       - name: Quality Gate Check
