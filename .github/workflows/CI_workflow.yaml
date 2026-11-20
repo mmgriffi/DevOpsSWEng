@@ -30,7 +30,7 @@ jobs:
           docker run --name tennis-unit-tests \
             -w /app/my_tennis_club \
             devops-app:test \
-            sh -c "pip install coverage && coverage run manage.py test && coverage xml"
+            sh -c "pip install coverage && coverage run --source=. manage.py test -v 2 && coverage xml"
 
           docker cp tennis-unit-tests:/app/my_tennis_club/coverage.xml ./coverage.xml
           docker rm tennis-unit-tests
@@ -89,6 +89,10 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           args: >
+            -Dsonar.sources=my_tennis_club
+            -Dsonar.tests=my_tennis_club
+            -Dsonar.test.inclusions=**/tests.py,**/test_*.py,**/E2ETests/**
+            -Dsonar.exclusions=**/migrations/**,**/settings.py,**/manage.py
             -Dsonar.python.coverage.reportPaths=coverage.xml
 
       - name: Quality Gate Check
