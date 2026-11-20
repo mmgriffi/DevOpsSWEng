@@ -9,12 +9,12 @@ I have a homelab server that I've used for development and testing in the past.
 This is configred as a Promox Virtual host and runs the virtual machines used in my environment. 
 The relevant items for this assigment are : 
 
-| Item                      |Description|Notes|
-|---------------------------|----|----|
-| Container Orchestration   |Kubernetes(rke2)|I have confgured a 2 node rke2 cluster. Managed from command line and "Headlamp" GUI|
-| GitHub Runner             |Ubuntu 22.04 node VM|This is configured as a "self hosted" github runner with docker, python testing tools (playwright, pytest, chromium) and keys required to connect to github, sonarqube.| 
-| Code Analysis (SonarQube) |LXC Ubuntu 22.04 container|This LXC container has docker and the SonarCube images (website/db) installed , running on http://192.168.1.92 locally. | 
-|Monitoring|||
+| Item                      |Description| Notes                                                                                                                                                                   |
+|---------------------------|----|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Container Orchestration   |Kubernetes(rke2)| I have confgured a 2 node rke2 cluster. This is managed from command line and using the "Headlamp" GUI utility.                                                         |
+| GitHub Runner             |Ubuntu 22.04 node VM| This is configured as a "self hosted" github runner with docker, python testing tools (playwright, pytest, chromium) and keys required to connect to github, sonarqube. | 
+| Code Analysis (SonarQube) |LXC Ubuntu 22.04 container| This LXC container has docker and the SonarCube images (website/db) installed , running on http://192.168.1.92 locally.                                                 | 
+|Monitoring||                                                                                                                                                                         |
 
 ## CI/CD Tool Integration ###
 
