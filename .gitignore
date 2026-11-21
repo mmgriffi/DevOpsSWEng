@@ -10,6 +10,8 @@ my_tennis_club/db.sqlite3
 .env
 local_settings.py
 
+kubernetes/secret.txt
+
 # Testing and Code Coverage
 .coverage
 htmlcov/
