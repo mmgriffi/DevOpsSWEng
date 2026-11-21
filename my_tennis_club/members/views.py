@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.template import loader
 from django.views.decorators.http import require_GET
 from .models import Member
-
+#
 @require_GET
 def members(request):
   mymembers = Member.objects.all().values()
@@ -22,6 +22,7 @@ def details(request, id):
     'mymember': mymember,
   }
   return HttpResponse(template.render(context, request))
+
 @require_GET
 def main(request):
   template = loader.get_template('main.html')

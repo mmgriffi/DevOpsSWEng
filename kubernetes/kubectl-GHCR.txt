@@ -1,0 +1,3 @@
+#update this before running.
+kubectl create secret docker-registry ghcr-secret-devops --namespace dev --docker-server=ghcr.io --docker-username=<> --docker-password=<>
+kubectl create secret docker-registry ghcr-secret-devops --namespace prod --docker-server=ghcr.io --docker-username=<> --docker-password=<>
