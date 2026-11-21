@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.template import loader
 from django.views.decorators.http import require_GET
 from .models import Member
-
+#
 @require_GET
 def members(request):
   mymembers = Member.objects.all().values()
