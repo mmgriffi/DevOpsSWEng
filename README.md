@@ -1,9 +1,10 @@
 # DevOps Software Engineering Assignment
 
 ## Introduction
-This application is a Django website with a single database table and functions to display a members list.
+This application is a Django website i created from a W3 schools [tutorial](https://www.w3schools.com/django/index.php) with a single database table and functions to display a members list.
 I've used Django/Python framework as it has extensive libraries and testing facilities.
 (_and, I'm trying to learn Python_). I've used PyCharm IDE which allows me run/basic test applications in a virtual python enviroment locally before transfer to a docker desktop on the laptop, or to a container environment. 
+
 
 | Homepage                      | Note                                                               |
 |-------------------------------|--------------------------------------------------------------------|
@@ -15,14 +16,16 @@ I've used Django/Python framework as it has extensive libraries and testing faci
 I'm using a Promox homelab server that I've used for development projects. 
 The relevant items for this assigment are : 
 
-| Item                      |Description| Notes                                                                                                                                                                                                      |
-|---------------------------|----|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Container Orchestration   |Kubernetes(rke2)| I have confgured a 2 node rke2 cluster. This is managed from command line and an open source GUI "Headlamp".                                                                                               |
-| GitHub Runner             |Ubuntu 22.04 node VM| This is configured as a "self hosted" github runner for this repo. It has docker, python testing tools (playwright, pytest, chromium)                                                                      | 
-| Code Analysis (SonarQube) |LXC Ubuntu 22.04 container| This LXC container has docker and the SonarCube images (website/db) installed , running on http://192.168.1.92 locally.                                                                                    | 
-|Monitoring||                                                                                                                                                                                                            |
-|DNS|PiHole| PiHole is a DNS server and ad-blocker commonly used in home networks.</br>. It is installed as a lightweight VM on the Promox host. This allows creation of human readable domain names, easier management |
-|Code Quality|SonarCube| This is installed as  LXC container on the promox host. |                                                                                                                                                                                         
+| Item                      | Description                | Notes                                                                                                                                                                                                      |
+|---------------------------|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Container Orchestration   | Kubernetes(rke2)           | I have confgured a 2 node rke2 cluster. This is managed from command line and an open source GUI "Headlamp".                                                                                               |
+| GitHub Runner             | Ubuntu 22.04 node VM       | This is configured as a "self hosted" github runner for this repo. It has docker, python testing tools (playwright, pytest, chromium)                                                                      | 
+| Code Analysis (SonarQube) | LXC Ubuntu 22.04 container | This LXC container has docker and the SonarCube images (website/db) installed , running on http://192.168.1.92 locally.                                                                                    | 
+|Monitoring| Elasticsearch and Kibana   |                                                                                                                                                                                                            |
+|DNS| PiHole                     | PiHole is a DNS server and ad-blocker commonly used in home networks.</br>. It is installed as a lightweight VM on the Promox host. This allows creation of human readable domain names, easier management |
+
+![image](images/promox_vm_env.jpg)
+_Promox01 host machine with virtual machines used in this project._
 
 **Kubernetes Environment**
 To create a "near-production" scenario, I've setup 2 namespaces on the Kubernetes cluster - dev + prod. 
