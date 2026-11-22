@@ -5,8 +5,10 @@ This application is a Django website i created from a W3 schools [tutorial](http
 I've used Django/Python framework as it has extensive libraries and testing facilities.
 (_and, I'm trying to learn Python_). I've used PyCharm IDE which allows me run/basic test applications in a virtual python enviroment locally before transfer to a docker desktop on the laptop, or to a container environment. 
 
+![image](images/project_overview2.jpg)
 
-| Homepage                      | Note                                                               |
+
+| Homepage                      | Note                    ![Designer.png](../../../../../Downloads/Designer.png)                                           |
 |-------------------------------|--------------------------------------------------------------------|
 | ![image](images/homepage.jpg) | - App version is taken from git tag </br> - date is the build date |
 | ![image](images/members.jpg)  | The app has drilldown to members list and individual member       |
@@ -14,7 +16,7 @@ I've used Django/Python framework as it has extensive libraries and testing faci
 
 ## Build/Deployment Environment 
 I'm using a Promox homelab server that I've used for development projects. 
-The relevant items for this assigment are : 
+The relevant items are : 
 
 | Item                      | Description                | Notes                                                                                                                                                                                                      |
 |---------------------------|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -109,7 +111,13 @@ The GH action setp for checking the quality gate was set to allow it continue on
 
 **Monitoring***
 
-<todo>
+Kubernetes logging is being pushed to ElasticSearch. Kibana Dashboard is configured to show pod events (failures etc)
+
+![image](images/kibana1.jpg)
+
+Slack is being alerts on POD events using a cron script querying the elasticsearch API . 
+
+![image](images/slack_k8s_alert.jpg)
 
 **New version Deployment**
  - When you are ready to push a new version and include a tag do the following :
@@ -125,9 +133,7 @@ The GH action setp for checking the quality gate was set to allow it continue on
 
 **Improvements**
 - Should tag the GHCR images by version number.  Also look at how rollbacks can be made easier by using tagged images.
-- Workflow automation. Automate messages for approvals, triggering the deployments to prod (or dev). In the past I've done this using simple updates to </br>
-a "signal" file that the workflow scans for , waits. 
-- 
+- Workflow automation. Automate messages for approvals, triggering the deployments to prod (or dev).
 
 **Application Revision History**
 After I got the initial website/ app running .  I have used tagged some of the commits (not every workflow correction was included) to mark the main changes 
@@ -136,3 +142,6 @@ After I got the initial website/ app running .  I have used tagged some of the c
 |----|----|
 |v1.0|1st version, website and basic deployment workflows working|
 | v1.1| Added version + build info to footer page.  added SonarCube Scans|
+| v1.1.1|Bugfix|
+| v1.1.2|BugFix|
+| v1.1.3|Final Bugfix|
